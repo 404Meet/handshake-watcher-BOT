@@ -1,0 +1,30 @@
+# Maven build output
+/target/
+
+# IntelliJ / VS Code / Eclipse project files
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+
+# Logs + temp files
+*.log
+*.tmp
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Java compile artifacts
+*.class
+
+# Personal archive files
+*.zip
+*.tar.gz
+*.jar
+
+# Credentials (if you add API tokens later)
+config.properties
+.env
