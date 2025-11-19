@@ -1,0 +1,10 @@
+com/meet/handshake/HandshakeScraper.class
+com/meet/handshake/StateStore.class
+com/meet/handshake/DailySummary.class
+com/meet/handshake/Main.class
+com/meet/handshake/HandshakeJobWatcher.class
+com/meet/handshake/StateStore$State.class
+com/meet/handshake/HandshakeScraper$JobInfo.class
+com/meet/handshake/HandshakeLoginOnce.class
+com/meet/handshake/HandshakeScraper$JobPageResult.class
+com/meet/handshake/TelegramNotifier.class
