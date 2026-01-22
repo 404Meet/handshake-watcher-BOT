@@ -1,46 +1,101 @@
-1. Project Overview
-Handshake Watcher is an automation tool designed to help students monitor the Handshake job portal for new internships and job postings.
-Without repeatedly checking manually. The application continuously scans job listings and sends instant Telegram updates whenever new roles are available.
-The main objective is to save time, reduce missed opportunities, and ensure fast responses to competitive job postings.
+# Handshake Job Watcher Bot 🤖🔔
 
-3. How It Works
-The project is built using pure Java and structured into independent modules:
-Component	Responsibility
-HandshakeScraper: Logs into Handshake and scrapes job listings
-StateStore: Stores previously seen listings in a JSON file to avoid duplicate alerts
-HandshakeJobWatcher:	Scheduler to monitor new jobs periodically
-TelegramNotifier:	Sends instant job alerts using Telegram Bot API
-DailySummary:	Optionally sends a recap of job changes once per day
-Main:	CLI entry point to run different operating modes
+[![Java](https://img.shields.io/badge/Java-17+-informational)](#)
+[![Build](https://img.shields.io/badge/Build-Maven-blue)](#)
+[![Automation](https://img.shields.io/badge/Automation-Selenium-brightgreen)](#)
+[![Alerts](https://img.shields.io/badge/Alerts-Telegram-blue)](#)
 
-4. Technologies & Tools Used
-Java (Core Java, Streams, Multithreading)
-HTML scraping using internal parsing and DOM extraction
-JSON-based persistent storage for tracking job state
-Maven for dependency management & packaging
-Telegram Bot API for notifications
-Authentication via login cookies stored securely and reused for scraping
-Scheduling logic for automated periodic job checks
-AWS EC2 for 24/7 deployment
-VS Code for development workflow
+A **Java + Selenium** bot that monitors **Handshake job postings** and sends **Telegram alerts** when new jobs appear. It reuses an authenticated **Chrome profile/session**, tracks state in a local JSON file, and can run continuously (e.g., on an **AWS EC2** instance).
 
-5. Authentication & Storage
-To interact with Handshake securely:
-The tool uses session login cookies instead of storing usernames/passwords.
-Cookies are refreshed and managed automatically.
-Previously detected jobs are saved in a local JSON file (like jobState.json) so only new postings trigger notifications — preventing spam.
+---
 
-6. Notifications
-Notifications are delivered through Telegram with details like:
-Job title
-Company name
-Apply link
-Time discovered
+## Features
+- ✅ Reuses SSO login using a persistent **Chrome user profile**
+- ✅ Scrapes job cards (title/company/pay/link) from the Handshake job search page
+- ✅ Saves last-seen state to `~/.handshake_state.json`
+- ✅ Sends Telegram alerts (top newest jobs)
+- ✅ Runs in a **scheduler loop** (default: every ~120 minutes)
 
-This provides quick access and boosts the chance of applying early.
+---
 
-5. Deployment
-The full system is deployed on an AWS EC2 Linux instance, running continuously as a background service. This ensures:
-No local machine required
-Always on - checks around the clock
-Low-latency job alerts
+## Tech Stack
+- **Java 17+**
+- **Maven**
+- **Selenium WebDriver** + **WebDriverManager**
+- **Jackson** (state persistence)
+- **Telegram Bot API**
+
+---
+
+## Quick Start
+
+### 1) Prerequisites
+- Java **17+**
+- Maven
+- Google Chrome installed
+
+### 2) Configure environment variables (recommended)
+Set these before running:
+
+**Required**
+- `TELEGRAM_BOT_TOKEN` — your bot token from @BotFather  
+- `TELEGRAM_CHAT_ID` — chat ID to send notifications  
+- `HANDSHAKE_PROFILE_DIR` — local path used to store the Chrome profile/session
+
+**Optional**
+- `HANDSHAKE_JOBS_URL` — job search URL with your filters applied  
+- `CHECK_INTERVAL_MINUTES` — polling interval (default: `120`)  
+- `HEADLESS` — `true/false` (default: `false`)
+
+#### macOS / Linux
+bash
+`export TELEGRAM_BOT_TOKEN="xxx"`
+`export TELEGRAM_CHAT_ID="123456789"`
+`export HANDSHAKE_PROFILE_DIR="$HOME/handshake-profile"`
+`export HANDSHAKE_JOBS_URL="https://gmu.joinhandshake.com/job-search?per_page=50&sort=posted_date_desc&page=1"`
+`export CHECK_INTERVAL_MINUTES="120"`
+`export HEADLESS="false"`
+
+#### Windows
+PowerShell
+`$env:TELEGRAM_BOT_TOKEN="xxx"`
+`$env:TELEGRAM_CHAT_ID="123456789"`
+`$env:HANDSHAKE_PROFILE_DIR="$env:USERPROFILE\handshake-profile"`
+`$env:HANDSHAKE_JOBS_URL="https://gmu.joinhandshake.com/job-search?per_page=50&sort=posted_date_desc&page=1"`
+`$env:CHECK_INTERVAL_MINUTES="120"`
+`$env:HEADLESS="false"`
+
+#### Run Modes
+A) Login Once (first time)
+Opens Chrome so you can complete SSO, then saves the session to your profile directory.
+mvn -q exec:java -Dexec.args="login-once"
+
+B) Run One Check (manual)
+mvn -q exec:java -Dexec.args="check"
+
+C) Daily Summary (manual)
+mvn -q exec:java -Dexec.args="daily-summary"
+
+D) Scheduler (recommended)
+Runs continuously and checks every CHECK_INTERVAL_MINUTES.
+mvn -q exec:java
+
+E) One-Command Run (Example)
+After setting env vars:
+mvn -q exec:java
+
+#### Configuration Notes
+Handshake Job URL / Filters
+Set HANDSHAKE_JOBS_URL to the Handshake job-search URL you want (include your filters + sort order).
+Example: sort newest, 50 results per page
+
+#### Headless Mode
+If HEADLESS=true, the bot runs without opening a browser window.
+Tip: Keep login-once non-headless so you can complete SSO.
+
+#### State File
+The bot stores state at: ~/.handshake_state.json
+This is used to detect new jobs between checks.
+
+#### Disclaimer
+Use responsibly and respect Handshake’s Terms of Service. The default interval is intentionally conservative.
